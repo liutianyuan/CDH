@@ -6,11 +6,11 @@
 
 ## 参考上面两篇基本配置，添加了部分配置
 
-# 一、CDH配置Kerberos认证
-
 本文主要记录 CDH集群上集成 Kerberos 的过程，包括 Kerberos 的安装和 CDH 相关配置修改说明。
 
-## 1. 环境说明
+# 一、安装Kerberos
+## 1. 整说明
+软件版本
 * 操作系统：CentOs 6.8
 * CDH版本：Hadoop 2.6.0-cdh5.9.0
 * JDK版本：jdk1.7.0_67-cloudera
