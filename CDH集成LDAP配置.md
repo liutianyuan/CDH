@@ -1,24 +1,22 @@
 
-转载自JavaChen Blog，作者：JavaChen
-原文链接地址：http://blog.javachen.com/2014/11/12/config-ldap-with-kerberos-in-cdh-hadoop.html
+### 转载自JavaChen Blog，作者：JavaChen
+### 原文链接地址：http://blog.javachen.com/2014/11/12/config-ldap-with-kerberos-in-cdh-hadoop.html
+### 参考上面基本配置，添加了部分配置
 
-
-CDH集成LDAP配置
-
-本文主要记录 cdh hadoop 集群集成 ldap 的过程，这里 ldap 安装的是 OpenLDAP 。LDAP 用来做账号管理，Kerberos作为认证。CDH集群已经开启Kerberos认证。
+# 本文主要记录 cdh hadoop 集群集成 ldap 的过程，这里 ldap 安装的是 OpenLDAP 。LDAP 用来做账号管理，Kerberos作为认证。CDH集群已经开启Kerberos认证。
 
 # 一、环境说明
 ## 软件版本
 操作系统：CentOs 6.8
 CDH版本：Hadoop 2.6.0-cdh5.9.0
 JDK版本：jdk1.7.0_67-cloudera
-OpenLDAP 版本：2.4.39
-Kerberos 版本：1.10.3
+OpenLDAP 版本：openldap-2.4.40-16.el6.x86_64
+Kerberos 版本：1.10.3-65.el6
 运行用户：root
 
 ## 集群主机角色划分
-1. sunmvm20 作为master节点，安装kerberos Server
-2. 其他节点作为slave节点，安装kerberos client
+1. sunmvm20 作为master节点，安装 openldap服务端
+2. 其他节点作为slave节点，安装 openldap 客户端
 
 # 二、安装服务端
 
@@ -34,11 +32,11 @@ $ yum install openldap openldap-servers openldap-clients openldap-devel compat-o
 
 ```shell
 $ rpm -qa openldap
-openldap-2.4.39-8.el6.x86_64
+openldap-2.4.40-16.el6.x86_64
 
-$ rpm -qa krb5-server-ldap
-krb5-server-ldap-1.10.3-33.el6.x86_64
-1.2 OpenSSL
+$ yum list all | grep krb5-server-ldap
+krb5-server-ldap.i686              1.10.3-65.el6               base
+krb5-server-ldap.x86_64            1.10.3-65.el6               base
 ```
 ## 2.LDAP 服务端配置
 
@@ -115,9 +113,9 @@ Kdc(Key distribute center)知道所有principal的secret key，但每个principa
 为了使 Kerberos 能够绑定到 OpenLDAP 服务器，请创建一个管理员用户和一个 principal，并生成 keytab 文件，设置该文件的权限为 LDAP 服务运行用户可读（ LDAP 服务运行用户一般为 ldap）：
 
 ```shell
-$ kadmin.local -q "addprinc ldapadmin@JAVACHEN.COM"
-$ kadmin.local -q "addprinc -randkey ldap/cdh1@JAVACHEN.COM"
-$ kadmin.local -q "ktadd -k /etc/openldap/ldap.keytab ldap/cdh1@JAVACHEN.COM"
+$ kadmin.local -q "addprinc ldapadmin@0HKJ.COM"
+$ kadmin.local -q "addprinc -randkey ldap/sunmvm20@0HKJ.COM"
+$ kadmin.local -q "ktadd -k /etc/openldap/ldap.keytab ldap/sunmvm20@0HKJ.COM"
 # ktadd 后面的-k 指定把 key 存放在一个本地文件中。
 
 $ chown ldap:ldap /etc/openldap/ldap.keytab && chmod 640 /etc/openldap/ldap.keytab
@@ -257,21 +255,21 @@ $ useradd test hive
 # 查找系统上的 test、hive 等用户
 $ grep -E "test|hive" /etc/passwd  >/opt/passwd.txt
 $ /usr/share/migrationtools/migrate_passwd.pl /opt/passwd.txt /opt/passwd.ldif
-$ ldapadd -x -D "uid=ldapadmin,ou=people,dc=javachen,dc=com" -w secret -f /opt/passwd.ldif
+$ ldapadd -x -D "uid=ldapadmin,ou=people,dc=0hkj,dc=com" -w secret -f /opt/passwd.ldif
 
 # 将用户组导入到 ldap 中：
 
 # 生成用户组的 ldif 文件，然后导入到 ldap
 $ grep -E "test|hive" /etc/group  >/opt/group.txt
 $ /usr/share/migrationtools/migrate_group.pl /opt/group.txt /opt/group.ldif
-$ ldapadd -x -D "uid=ldapadmin,ou=people,dc=javachen,dc=com" -w secret -f /opt/group.ldif
+$ ldapadd -x -D "uid=ldapadmin,ou=people,dc=0hkj,dc=com" -w secret -f /opt/group.ldif
 ```
 
 * 查询
 ```shell
 # 查询新添加的 test 用户：
-$ ldapsearch -LLL -x -D 'uid=ldapadmin,ou=people,dc=javachen,dc=com' -w secret -b 'dc=javachen,dc=com' 'uid=test'
-  dn: uid=test,ou=people,dc=javachen,dc=com
+$ ldapsearch -LLL -x -D 'uid=ldapadmin,ou=people,dc=0hkj,dc=com' -w secret -b 'dc=0hkj,dc=com' 'uid=test'
+  dn: uid=test,ou=people,dc=0hkj,dc=com
   objectClass: inetOrgPerson
   objectClass: posixAccount
   objectClass: shadowAccount
@@ -287,20 +285,20 @@ $ ldapsearch -LLL -x -D 'uid=ldapadmin,ou=people,dc=javachen,dc=com' -w secret -
 * 修改
 ```shell
 # 用户添加好以后，需要给其设定初始密码，运行命令如下：
-$ ldappasswd -x -D 'uid=ldapadmin,ou=people,dc=javachen,dc=com' -w secret "uid=test,ou=people,dc=javachen,dc=com" -S
+$ ldappasswd -x -D 'uid=ldapadmin,ou=people,dc=0hkj,dc=com' -w secret "uid=test,ou=people,dc=0hkj,dc=com" -S
 ```
 
 * 删除
 ```shell
 # 删除用户或组条目：
-$ ldapdelete -x -w secret -D 'uid=ldapadmin,ou=people,dc=javachen,dc=com' "uid=test,ou=people,dc=javachen,dc=com"
-$ ldapdelete -x -w secret -D 'uid=ldapadmin,ou=people,dc=javachen,dc=com' "cn=test,ou=group,dc=javachen,dc=com"
+$ ldapdelete -x -w secret -D 'uid=ldapadmin,ou=people,dc=0hkj,dc=com' "uid=test,ou=people,dc=0hkj,dc=com"
+$ ldapdelete -x -w secret -D 'uid=ldapadmin,ou=people,dc=0hkj,dc=com' "cn=test,ou=group,dc=0hkj,dc=com"
 ```
 
 # 三、客户端配置
 
 ```shell
-# 在 cdh2 和 cdh3上，使用下面命令安装openldap客户端
+# 在 [sunmvm26 - sunmvm28]上，使用下面命令安装openldap客户端
 $ yum install openldap-clients -y
 
 # 修改 /etc/openldap/ldap.conf 以下两个配置
