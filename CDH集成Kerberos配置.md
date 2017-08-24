@@ -219,18 +219,24 @@ kadmin.local -q "delprinc user1"
 # 二、CDH启用Kerberos 
 
 ## CM中的操作
-    在CM的界面上点击启用Kerberos,启用的时候需要确认几个事情：
+在CM的界面上点击启用Kerberos,启用的时候需要确认几个事情：
+
     1.KDC已经安装好并且正在运行  
     2.将KDC配置为允许renewable tickets with non-zerolifetime(在之前修改kdc.conf文件的时候已经添加了kdc_tcp_ports、max_life和max_renewable_life这个三个选项)  
     3.在Cloudera Manager Server上安装openldap-clients  
     4.为Cloudera Manager创建一个principal，使其能够有权限在KDC中创建其他的principals，就是上面创建的Kerberos管理员账号
 
-    上述确认完了之后点击continue，进入下一页进行配置，要注意的是：这里的『Kerberos Encryption Types』必须跟KDC实际支持的加密类型匹配即 /etc/krb5.conf 中的default_tgs_enctypes、default_tkt_enctypes和permitted_enctypes三个选项的值对应起来，不然会出现集群服务无法认证通过的情况。
-    点击continue，进入下一页，这一页中可以不勾选『Manage krb5.conf through Cloudera Manager』注意，如果勾选了这个选项就可以通过CM的管理界面来部署krb5.conf，但是实际操作过程中发现有些配置仍然需要手动修改该文件并同步。  
-    点击continue，进入下一页，输入Cloudera Manager Principal的管理员账号和密码，注意输入账号的时候要使用@前要使用全称，root/admin。  
-    点击continue，进入下一页，导入KDC Account Manager Credentials。 
-    点击continue，进入下一页，restart cluster并且enable Kerberos。
-    之后CM会自动重启集群服务，启动之后会会提示Kerberos已启用。  
+上述确认完了之后点击continue，进入下一页进行配置，要注意的是：这里的『Kerberos Encryption Types』必须跟KDC实际支持的加密类型匹配即 /etc/krb5.conf 中的default_tgs_enctypes、default_tkt_enctypes和permitted_enctypes三个选项的值对应起来，不然会出现集群服务无法认证通过的情况。
+
+点击continue，进入下一页，这一页中可以不勾选『Manage krb5.conf through Cloudera Manager』注意，如果勾选了这个选项就可以通过CM的管理界面来部署krb5.conf，但是实际操作过程中发现有些配置仍然需要手动修改该文件并同步。  
+
+点击continue，进入下一页，输入Cloudera Manager Principal的管理员账号和密码，注意输入账号的时候要使用@前要使用全称，root/admin。  
+
+点击continue，进入下一页，导入KDC Account Manager Credentials。 
+
+点击continue，进入下一页，restart cluster并且enable Kerberos。
+
+之后CM会自动重启集群服务，启动之后会会提示Kerberos已启用。  
 
 ## 在CM上启用Kerberos的过程中，CM会自动做以下的事情：
 
@@ -246,9 +252,7 @@ kadmin.local -q "list_principals"
 4.在每个服务的配置文件中加入有关Kerberos的配置，其中包括Zookeeper服务所需要的jaas.conf和keytab文件都会自动设定并读取，如果用户仍然手动修改了Zookeeper的服务，要确保这两个文件的路径和内容正确性。
 
 ## 创建HDFS超级用户
-    此时直接用CM生成的principal访问HDFS会失败，因为那些自动生成的principal的密码是随机的，用户并不知道，而通过命令行的方式访问HDFS需要先使用kinit来登录并获得ticket，所以使用kinit hdfs/hadoop-10-0-8-124@XIAOHEI.INFO需要输入密码的时候无法继续。
-
-    用户可以通过创建一个hdfs@0HKJ.COM的principal并记住密码从命令行中访问HDFS。登录之后就可以通过认证并访问HDFS,默认hdfs用户是超级用户。
+此时直接用CM生成的principal访问HDFS会失败，因为那些自动生成的principal的密码是随机的，用户并不知道，而通过命令行的方式访问HDFS需要先使用kinit来登录并获得ticket，所以使用kinit hdfs/hadoop-10-0-8-124@XIAOHEI.INFO需要输入密码的时候无法继续。用户可以通过创建一个hdfs@0HKJ.COM的principal并记住密码从命令行中访问HDFS。登录之后就可以通过认证并访问HDFS,默认hdfs用户是超级用户。
 ```shell
 kadmin.local -q "addprinc hdfs"
 kinit hdfs@0HKJ.COM
@@ -280,7 +284,8 @@ kinit hdfs@0HKJ.COM
 
 INFO mapreduce.Job: Job job_1442654915965_0002 failed with state FAILED due to: Application application_1442654915965_0002 failed 2 times due to AM Container for appattempt_1442654915965_0002_000002 exited with exitCode: -1000 due to: Application application_1442654915965_0002 initialization failed (exitCode=255) with output: Requested user hdfs is not whitelisted and has id 496,which is below the minimum allowed 1000  
 
-原因：   
+原因：
+
     Linux user 的 user id 要大于等于1000，否则会无法提交Job。例如，如果以hdfs（id为490）的身份提交一个job，就会看到以上的错误信息
     
 解决方法：
@@ -292,7 +297,8 @@ INFO mapreduce.Job: Job job_1442654915965_0002 failed with state FAILED due to: 
 
 INFO mapreduce.Job: Job job_1442722429197_0001 failed with state FAILED due to: Application application_1442722429197_0001 failed 2 times due to AM Container for appattempt_1442722429197_0001_000002 exited with exitCode: -1000 due to: Application application_1442722429197_0001 initialization failed (exitCode=255) with output: Requested user hdfs is banned  
 
-原因：  
+原因：
+
     hdfs用户被禁止运行 YARN container，yarn的设置中将hdfs用户禁用了
     
 解决方法：
