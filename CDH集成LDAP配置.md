@@ -7,16 +7,16 @@
 
 # 一、环境说明
 ## 软件版本
-操作系统：CentOs 6.8
-CDH版本：Hadoop 2.6.0-cdh5.9.0
-JDK版本：jdk1.7.0_67-cloudera
-OpenLDAP 版本：openldap-2.4.40-16.el6.x86_64
-Kerberos 版本：1.10.3-65.el6
-运行用户：root
+* 操作系统：CentOs 6.8
+* CDH版本：Hadoop 2.6.0-cdh5.9.0
+* JDK版本：jdk1.7.0_67-cloudera
+* OpenLDAP 版本：openldap-2.4.40-16.el6.x86_64
+* Kerberos 版本：1.10.3-65.el6
+* 运行用户：root
 
 ## 集群主机角色划分
-1. sunmvm20 作为master节点，安装 openldap服务端
-2. 其他节点作为slave节点，安装 openldap 客户端
+* sunmvm20 作为master节点，安装 openldap服务端
+* [sunmvm26-sunmvm28]作为slave节点，安装 openldap 客户端
 
 # 二、安装服务端
 
