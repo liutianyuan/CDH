@@ -66,5 +66,6 @@ LDAP group_member_attr = memberUID
 # HUE集成Sentry
 
 # 用户、用户组映射配置（HUE，HDFS，Sentry）
+!(image/hdfs-user-group-mapping.png)
 
 # HUE本地调试环境搭建
