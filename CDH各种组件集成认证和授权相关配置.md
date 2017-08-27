@@ -61,11 +61,37 @@ LDAP group_member_attr = memberUID
 
 # Hive集成Sentry
 
+
 # Impala集成Sentry
 
 # HUE集成Sentry
 
 # 用户、用户组映射配置（HUE，HDFS，Sentry）
-!(image/hdfs-user-group-mapping.png)
+![](image/hdfs-user-group-mapping.png)
 
 # HUE本地调试环境搭建
+
+# HUE汉化方法
+
+* 1.修改配置文件
+vi /opt/soft/hadoop/hue-3.10.0/desktop/core/src/desktop/settings.py
+```shell
+LANGUAGE_CODE = 'zh_CN'
+LANGUAGES = [
+  ('en-us', _('English')),
+  ('zh_CN', _('Simplified Chinese')),
+]
+```
+* 2.重新编译
+```shell
+cd  /opt/soft/hadoop/hue-3.10.0
+make apps
+```
+* 3.执行
+```shell
+make locales
+```
+* 4.启动hue
+```shell
+./build/env/bin/hue runserver 127.0.0.1:8000
+```
