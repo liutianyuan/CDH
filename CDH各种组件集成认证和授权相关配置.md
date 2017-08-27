@@ -60,16 +60,40 @@ LDAP group_member_attr = memberUID
 ```
 
 # Hive集成Sentry
+在CM上转入Hive的配置页面：
 
+* 取消勾选 HiveServer2 启用模拟属性
+* 设置Sentry 服务属性为 Sentry
+
+CDH中只需要配置上面两项即可，其余配置文件CDH会自动配置好。
 
 # Impala集成Sentry
-
+![](image/impala-sentry.png)
 # HUE集成Sentry
+![](image/hue-sentry.png)
 
 # 用户、用户组映射配置（HUE，HDFS，Sentry）
+打通平台用户体系（Unix / HDFS / LDAP / HUE / Sentry ）,统一走LDAP管理。
+
+## HDFS
+配置HDFS使用LDAP的用户、用户组
+![](image/hdfs-ldap.png)
+使用下面命令，查看test用户的用户组
+```shell
+hdfs groups test
+```
+
+如果LDAP中一个用户有多个用户组，sentry中只能取到gidNumber对应的那个用户组，其他的用户组取不到。查看LdapGroupsMapping源码，添加下面配置即可
 ![](image/hdfs-user-group-mapping.png)
 
+## Sentry
+Hive（服务范围）下
+hive.sentry.provider配置为默认值
+org.apache.sentry.provider.file.HadoopGroupResourceAuthorizationProvider
+
 # HUE本地调试环境搭建
+参考 http://swifter.love/2017/06/01/PyCharm调试Hue教程/
+
 
 # HUE汉化方法
 
