@@ -129,6 +129,8 @@ ohkj.com = 0HKJ.COM
 
 对于使用 centos5. 6 及以上的系统，默认使用 AES-256 来加密的。这就需要集群中的所有节点上安装 JCE，如果你使用的是 JDK1.6 ，则到Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files for JDK/JRE 6 页面下载，如果是 JDK1.7，则到 Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files for JDK/JRE 7 下载。下载的文件是一个 zip 包，解开后，将里面的两个文件放到下面的目录中：$JAVA_HOME/jre/lib/security.
 
+上面这一步一定要做，否则会报zk，namenode等不支持默认tkt的加密方式错误。
+
 3）为了能够不直接访问 KDC 控制台而从 Kerberos 数据库添加和删除主体，请对 Kerberos 管理服务器指示允许哪些主体执行哪些操作。通过创建 /var/lib/kerberos/krb5kdc/kadm5.acl 完成此操作。
 
 ```shell
@@ -227,6 +229,7 @@ kadmin.local -q "delprinc user1"
     4.为Cloudera Manager创建一个principal，使其能够有权限在KDC中创建其他的principals，就是上面创建的Kerberos管理员账号
 
 上述确认完了之后点击continue，进入下一页进行配置，要注意的是：这里的『Kerberos Encryption Types』必须跟KDC实际支持的加密类型匹配即 /etc/krb5.conf 中的default_tgs_enctypes、default_tkt_enctypes和permitted_enctypes三个选项的值对应起来，不然会出现集群服务无法认证通过的情况。
+填 aes256-cts
 
 点击continue，进入下一页，这一页中可以不勾选『Manage krb5.conf through Cloudera Manager』注意，如果勾选了这个选项就可以通过CM的管理界面来部署krb5.conf，但是实际操作过程中发现有些配置仍然需要手动修改该文件并同步。  
 
@@ -277,6 +280,10 @@ kinit hdfs@0HKJ.COM
 ## 2.确认可以正常提交MapReduce job
 
 获取了hdfs的证书后，提交一个PI程序，如果能正常提交并成功运行，则说明Kerberized Hadoop cluster在正常工作
+
+```shell
+hadoop jar /opt/cloudera/parcels/CDH-5.9.0-1.cdh5.9.0.p0.23/lib/hadoop-mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.9.0.jar pi 2 2
+```
 
 # 四、集群集成Kerberos过程中遇到的坑
 
