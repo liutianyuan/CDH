@@ -100,7 +100,7 @@ hdfs groups test
 
 如果LDAP中一个用户有多个用户组，sentry中只能取到gidNumber对应的那个用户组，其他的用户组取不到。查看LdapGroupsMapping源码，添加下面配置即可
 ![](image/hdfs-user-group-mapping.png)
-
+hadoop.security.group.mapping.ldap.posix.attr.uid.name: uid
 ## Sentry
 Hive（服务范围）下
 hive.sentry.provider配置为默认值
