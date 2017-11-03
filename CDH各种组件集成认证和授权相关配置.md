@@ -78,6 +78,21 @@ CDH中只需要配置上面两项即可，其余配置文件CDH会自动配置�
 ## HDFS
 配置HDFS使用LDAP的用户、用户组
 ![](image/hdfs-ldap.png)
+```shell
+# Hadoop 用户组映射 LDAP 绑定用户可分辨名称
+hadoop.security.group.mapping.ldap.bind.user: uid=ldap,ou=people,dc=sunmnet,dc=com
+# Hadoop 用户组 进程ping 搜索基础
+hadoop.security.group.mapping.ldap.base: dc=sunmnet,dc=com
+# Hadoop 用户组 进程ping LDAP 用户搜索筛选器
+hadoop.security.group.mapping.ldap.search.filter.user: (&(objectClass=posixAccount)(uid={0}))
+# Hadoop 用户组 进程ping LDAP 组搜索筛选器
+hadoop.security.group.mapping.ldap.search.filter.group: (objectClass=posixGroup)
+# Hadoop 用户组 进程ping LDAP 组成员身份属性
+hadoop.security.group.mapping.ldap.search.attr.member: memberUid
+# Hadoop 用户组 进程ping LDAP 组名称属性
+hadoop.security.group.mapping.ldap.search.attr.group.name: cn
+
+```
 使用下面命令，查看test用户的用户组
 ```shell
 hdfs groups test
