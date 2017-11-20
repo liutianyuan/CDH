@@ -38,7 +38,9 @@ $ cat /etc/hosts
 
 在 sunmvm20 上安装 krb5、krb5-server 和 krb5-client。
 ```shell
-$ yum install krb5-server -y
+yum install krb5-server -y
+# klist等命令找不大时执行下面安装
+yum install -y krb5-server krb5-workstation pam_krb5
 ```
 在其他节点安装 krb5-devel、krb5-workstation
 ```shell
