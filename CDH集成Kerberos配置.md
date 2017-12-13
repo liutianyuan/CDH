@@ -313,3 +313,16 @@ INFO mapreduce.Job: Job job_1442722429197_0001 failed with state FAILED due to: 
 解决方法：
 
     修改Clouder关于这个该项的设置，Yarn->配置->banned.users 将hdfs用户移除
+    
+## YARN job运行时无法创建缓存目录
+
+异常信息：
+main : user is hdfs
+main : requested yarn user is hdfs
+Can’t create directory /data/data/yarn/nm/usercache/hdfs/appcache/application_1442724165689_0005 - Permission denied
+
+原因：
+该缓存目录在集群进入Kerberos状态前就已经存在了。例如当我们还没为集群Kerberos支持的时候，就用该用户跑过YARN应用
+
+解决方法：
+在每一个NodeManager节点上删除该用户的缓存目录，对于用户hdfs，是/data/data/yarn/nm/usercache/hdfs
