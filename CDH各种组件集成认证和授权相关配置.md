@@ -13,7 +13,7 @@
 </property>
 <property>
   <name>hive.server2.authentication.ldap.url</name>
-  <value>ldap://sunmvm20</value>
+  <value>ldap://master</value>
 </property>
 <property>
   <name>hive.server2.authentication.ldap.baseDN</name>
@@ -24,12 +24,12 @@
 ## 验证
 使用 beeline 验证：
 ```shell
-beeline -u "jdbc:hive2://sunmvm26:10000/default" -n test -p test
+beeline -u "jdbc:hive2://master:10000/default" -n test -p test
 ```
 # 2.Impala集成LDAP
 ## 配置：CDH->impala->配置  做如下配置
 * 启用LDAP身份验证 = true
-* LDAP URL = ldap://sunmvm20
+* LDAP URL = ldap://master
 * 启用LDAP TLS = true
 * LDAP BaseDN = ou=people,dc=0hkj,dc=com
 重启impala。
@@ -38,14 +38,14 @@ beeline -u "jdbc:hive2://sunmvm26:10000/default" -n test -p test
 ```shell
 impala-shell -l -u hive --auth_creds_ok_in_clear
 
-beeline -u "jdbc:hive2://sunmvm28:21050/default;" -n test -p test
+beeline -u "jdbc:hive2://master:21050/default;" -n test -p test
 ```
 # 3.HUE集成LDAP
 在Cloudera Mnager 中修改 HUE 配置，使用搜索绑定进行认证:
 
 ```shell
 backend = desktop.auth.backend.LdapBackend
-ldap_url = ldap://sunmvm20
+ldap_url = ldap://master
 
 # 使用搜索绑定认证
 Use Search Bind Authentication = true
@@ -80,9 +80,9 @@ CDH中只需要配置上面两项即可，其余配置文件CDH会自动配置�
 ![](image/hdfs-ldap.png)
 ```shell
 # Hadoop 用户组映射 LDAP 绑定用户可分辨名称
-hadoop.security.group.mapping.ldap.bind.user: uid=ldap,ou=people,dc=sunmnet,dc=com
+hadoop.security.group.mapping.ldap.bind.user: uid=ldapadmin,ou=people,dc=ohkj,dc=com
 # Hadoop 用户组 进程ping 搜索基础
-hadoop.security.group.mapping.ldap.base: dc=sunmnet,dc=com
+hadoop.security.group.mapping.ldap.base: dc=ohkj,dc=com
 # Hadoop 用户组 进程ping LDAP 用户搜索筛选器
 hadoop.security.group.mapping.ldap.search.filter.user: (&(objectClass=posixAccount)(uid={0}))
 # Hadoop 用户组 进程ping LDAP 组搜索筛选器
